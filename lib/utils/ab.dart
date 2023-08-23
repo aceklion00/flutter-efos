@@ -2048,7 +2048,7 @@ PreferredSize abV2AppBar(
                       Expanded(
                         child: Text(
                           title,
-                          style: MyFonts.medium(25),
+                          style: MyFonts.medium(25, color: MyColors.v2Primary),
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -2260,7 +2260,7 @@ Widget abV2PrimaryButton(String title,
                       color: success ? MyColors.v2Green : MyColors.v2Primary))),
           padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
               EdgeInsets.symmetric(horizontal: 16, vertical: 16))),
-      child: Text(title, style: MyFonts.regular(14, color: MyColors.white)),
+      child: Text(title, style: MyFonts.regular(13, color: MyColors.white)),
       onPressed: onTap,
     );
   } else {
@@ -2272,8 +2272,102 @@ Widget abV2PrimaryButton(String title,
                   borderRadius: BorderRadius.circular(5.0),
                   side: BorderSide(color: MyColors.v2Primary))),
           padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+            EdgeInsets.symmetric(
+                horizontal: 31, vertical: 5), // Modify these values
+          )),
+      child: Text(title, style: MyFonts.regular(18, color: MyColors.white)),
+      onPressed: onTap,
+    );
+  }
+}
+
+Widget abV2OutlineButton(String title,
+    {required Function() onTap, bool fullWidth = false, bool success = false}) {
+  if (fullWidth) {
+    return TextButton(
+      style: ButtonStyle(
+          minimumSize: MaterialStateProperty.all<Size>(Size.fromHeight(44)),
+          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+              RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5.0),
+                  side: BorderSide(
+                      color: success ? MyColors.v2Green : MyColors.v2Primary))),
+          padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+              EdgeInsets.symmetric(horizontal: 16, vertical: 16))),
+      child: Text(title, style: MyFonts.regular(14, color: MyColors.v2Primary)),
+      onPressed: onTap,
+    );
+  } else {
+    return TextButton(
+      style: ButtonStyle(
+          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+              RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5.0),
+                  side: BorderSide(color: MyColors.v2Primary))),
+          padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
               EdgeInsets.symmetric(horizontal: 32, vertical: 16))),
-      child: Text(title, style: MyFonts.regular(16, color: MyColors.white)),
+      child: Text(title, style: MyFonts.regular(16, color: MyColors.v2Primary)),
+      onPressed: onTap,
+    );
+  }
+}
+
+Widget abV2IconButton(
+  String title, {
+  required Function() onTap,
+  bool fullWidth = false,
+  bool success = false,
+  Widget? icon,
+}) {
+  if (fullWidth) {
+    return TextButton.icon(
+      style: ButtonStyle(
+        minimumSize: MaterialStateProperty.all(Size.fromHeight(44)),
+        backgroundColor: MaterialStateProperty.all<Color>(
+            success ? MyColors.v2Green : MyColors.v2Primary),
+        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5.0),
+            side: BorderSide(
+                color: success ? MyColors.v2Green : MyColors.v2Primary),
+          ),
+        ),
+        padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+            EdgeInsets.symmetric(horizontal: 16, vertical: 16)),
+      ),
+      icon: Align(
+        alignment: Alignment.centerRight,
+        child: icon ?? SizedBox(),
+      ),
+      label: Text(
+        title,
+        style: MyFonts.regular(14, color: MyColors.white),
+        textAlign: TextAlign.center,
+      ),
+      onPressed: onTap,
+    );
+  } else {
+    return TextButton.icon(
+      style: ButtonStyle(
+        backgroundColor: MaterialStateProperty.all<Color>(MyColors.v2Primary),
+        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5.0),
+            side: BorderSide(color: MyColors.v2Primary),
+          ),
+        ),
+        padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+            EdgeInsets.symmetric(horizontal: 32, vertical: 16)),
+      ),
+      icon: Align(
+        alignment: Alignment.centerRight,
+        child: icon ?? SizedBox(),
+      ),
+      label: Text(
+        title,
+        style: MyFonts.regular(16, color: MyColors.white),
+        textAlign: TextAlign.center,
+      ),
       onPressed: onTap,
     );
   }

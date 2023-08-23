@@ -1,14 +1,11 @@
 import 'package:extra_staff/utils/services.dart';
-import 'package:extra_staff/views/list_to_upload_v.dart';
-import 'package:extra_staff/views/splash_screen.dart';
-import 'package:get/get.dart';
-import 'package:flutter/material.dart';
 import 'package:extra_staff/utils/ab.dart';
 import 'package:extra_staff/utils/constants.dart';
-import 'package:extra_staff/views/legal_agreements/hmrc_checklist_start_v.dart';
-import 'package:extra_staff/views/registration_v.dart';
-import 'package:extra_staff/utils/resume_navigation.dart';
-import 'package:extra_staff/views/page_controller_v.dart';
+import 'package:extra_staff/views/v2/home_v.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
+import 'dart:async';
 
 class RegistrationComplete extends StatefulWidget {
   const RegistrationComplete({Key? key}) : super(key: key);
@@ -17,11 +14,42 @@ class RegistrationComplete extends StatefulWidget {
   _RegistrationCompleteState createState() => _RegistrationCompleteState();
 }
 
-class _RegistrationCompleteState extends State<RegistrationComplete> {
+class _RegistrationCompleteState extends State<RegistrationComplete>
+    with SingleTickerProviderStateMixin {
+  AnimationController? _controller;
+  Animation<double>? _animation;
+
+  Timer? _timer;
+
   @override
   void initState() {
     super.initState();
     saveProcess();
+
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+
+    _animation = Tween<double>(
+      begin: 1.0,
+      end: 0.0,
+    ).animate(_controller!);
+
+    _controller!.addListener(() {
+      setState(() {});
+    });
+
+    _controller!.forward();
+
+    _timer = Timer(Duration(seconds: 2), navigateToNextPage);
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    _timer?.cancel();
+    super.dispose();
   }
 
   saveProcess() async {
@@ -35,106 +63,117 @@ class _RegistrationCompleteState extends State<RegistrationComplete> {
     }
   }
 
+  navigateToNextPage() {
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        transitionDuration: Duration(milliseconds: 500),
+        pageBuilder: (context, animation, secondaryAnimation) => V2HomeView(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          var begin = Offset(1.0, 0.0);
+          var end = Offset.zero;
+          var tween = Tween(begin: begin, end: end);
+          var offsetAnimation = animation.drive(tween);
+
+          return SlideTransition(
+            position: offsetAnimation,
+            child: child,
+          );
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
+      body: Stack(
         children: [
-          isWebApp
-              ? ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxHeight: 300.0,
-                  ),
-                  child: Image(
-                      image: AssetImage('lib/images/comingSoon.png'),
-                      width: double.infinity,
-                      fit: BoxFit.fitWidth),
-                )
-              : Image(
-                  image: AssetImage('lib/images/comingSoon.png'),
-                  fit: BoxFit.fitWidth,
-                ),
-          Expanded(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 44),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    SizedBox(height: 8),
-                    Text(
-                      'Coming Soon ...',
-                      textAlign: TextAlign.center,
-                      style: MyFonts.regular(30, color: MyColors.darkBlue),
-                    ),
-                    SizedBox(height: 8),
-                    isWebApp
-                        ? Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              if (!ResponsiveWidget.isSmallScreen(context))
-                                Spacer(),
-                              Flexible(
-                                fit: FlexFit.loose,
-                                flex: 2,
-                                child: Container(
-                                  padding: gHPadding,
-                                  child: Column(
-                                    children: [
-                                      Text(
-                                        "This is only the start of our app, stay tuned for new updates including ability to view your pay information/payslips, latest Extrastaff news, ability to check in and out of work and book your holidays all by the click of a button!",
-                                        textAlign: TextAlign.center,
-                                        style: MyFonts.regular(20,
-                                            color: MyColors.grey),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              if (!ResponsiveWidget.isSmallScreen(context))
-                                Spacer(),
-                            ],
-                          )
-                        : Text(
-                            "This is only the start of our app, stay tuned for new updates including ability to view your pay information/payslips, latest Extrastaff news, ability to check in and out of work and book your holidays all by the click of a button!",
-                            textAlign: TextAlign.center,
-                            style: MyFonts.regular(20, color: MyColors.grey),
-                          ),
-                  ],
-                ),
+          Positioned(
+            top: 89,
+            left: -51,
+            width: 102,
+            height: 89,
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(width: 3, color: MyColors.v2Primary),
               ),
             ),
           ),
-          abBottomNew(
-            context,
-            top: 'Review Application',
-            bottom: 'Logout',
-            onTap: (i) async {
-              if (i == 0) {
-                await localStorage?.setBool('isAboutYouCompleted', false);
-                await localStorage?.setBool(
-                    'isEmploymentHistoryCompleted', false);
-                await localStorage?.setBool('isCompetencyTestCompleted', false);
-                await localStorage?.setBool('isAgreementsCompleted', false);
-                await localStorage?.setString(
-                    'LicenceType', 'LicenceType.licence');
-                await Resume.shared.markAllNotDone();
-
-                Get.offAll(() => RegistrationView());
-              } else {
-                await removeAllSharedPref();
-                if (!disableFallbackTimer) {
-                  if (timer != null) {
-                    print('fallbackTimer stopped');
-                    fallBackTimer(true);
-                  }
-                }
-                if (isWebApp)
-                  Get.offAll(() => PageControllerView());
-                else
-                  Get.offAll(() => SplashPage());
-              }
-            },
+          Positioned(
+            top: 74,
+            right: 69,
+            width: 47,
+            height: 37,
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(width: 3, color: MyColors.v2Primary),
+              ),
+            ),
+          ),
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Opacity(
+                  opacity: 1 - _animation!.value,
+                  child: Text(
+                    'Welcome to',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 46,
+                      color: MyColors.v2Primary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                Opacity(
+                  opacity: 1 - _animation!.value,
+                  child: Text(
+                    'Extrastaff',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 46,
+                      color: MyColors.v2Primary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Positioned(
+            left: 62,
+            bottom: 204,
+            width: 36,
+            height: 38,
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(width: 3, color: MyColors.v2Primary),
+              ),
+            ),
+          ),
+          Positioned(
+            left: -18,
+            bottom: -19,
+            width: 36,
+            height: 38,
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(width: 3, color: MyColors.v2Primary),
+              ),
+            ),
+          ),
+          Positioned(
+            right: -133,
+            bottom: 31,
+            width: 236,
+            height: 203,
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(width: 3, color: MyColors.v2Primary),
+              ),
+            ),
           ),
         ],
       ),

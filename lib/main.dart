@@ -1,5 +1,6 @@
 import 'package:extra_staff/utils/constants.dart';
 import 'package:extra_staff/views/analysing_docs.v.dart';
+import 'package:extra_staff/views/legal_agreements/registration_complete_v.dart';
 import 'package:extra_staff/views/v2/help_v.dart';
 import 'package:extra_staff/views/v2/work_v.dart';
 import 'package:extra_staff/views/v2/profile/payments_payehistory_v.dart';
@@ -86,7 +87,7 @@ class ExtraStaff extends StatelessWidget {
               scrollBehavior: MyCustomScrollBehavior(),
               theme: theme,
               darkTheme: darkTheme,
-              //home: V2HomeView(),
+              //home: RegistrationComplete(),
               home: !isWebApp
                   ? SplashPage()
                   : ((localStorage?.getString('passcode') ?? '').isNotEmpty
